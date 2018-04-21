@@ -7,18 +7,8 @@ import utils
 
 class Info(object):
 
-    def __init__(self, task_name, d, device, applicationid, version_name, pid, interval, output):
-        self.task_name = task_name
-        self.d = d
-        self.device = device
-        self.applicationid = applicationid
-        self.version_name = version_name
-        self.pid = pid
-        self.interval = interval
-        if output is not None:
-            self.output = output
-        else:
-            self.output = ""
+    def __init__(self):
+        self.task = None
 
     def get_start_info(self):
         pass
@@ -36,8 +26,8 @@ class NetInfo(Info):
     TOTAL_DOWN_SPEED = "下载总流量(KB)"
     TOTAL_UP_SPEED = "上传总流量(KB)"
 
-    def __init__(self, task, d, device, applicationid, version_name, pid, interval, output):
-        super().__init__(task, d, device, applicationid, version_name, pid, interval, output)
+    def __init__(self):
+        super().__init__()
         self.count = 1
         self.is_running = True
         self.is_first = True
@@ -56,9 +46,9 @@ class NetInfo(Info):
         self.is_running = False
 
     def get_net_info(self):
-        command = "cat /proc/" + self.pid + "/net/dev | grep wlan"
-        dirs = self.output + "/net_stats/"
-        file_name = "net_" + self.device + "_" + self.applicationid + "_" + self.version_name + "_" + self.task_name
+        command = "cat /proc/" + self.task.pid + "/net/dev | grep wlan"
+        dirs = self.task.output + "/net_stats/"
+        file_name = "net_" + self.task.device + "_" + self.task.applicationid + "_" + self.task.version_name + "_" + self.task.name
         field_names = [self.TIME,
                        self.DOWN_SPEED,
                        self.UP_SPEED,
@@ -71,7 +61,7 @@ class NetInfo(Info):
             if self.is_first:
                 self.start_time = time.time_ns()
                 self.last_time = self.start_time
-                net_info = self.d.adb_shell(command)
+                net_info = self.task.d.adb_shell(command)
                 net_array = re.split("\s+", net_info)
                 self.start_net_down = int(net_array[2])
                 self.last_net_down = self.start_net_down
@@ -79,7 +69,7 @@ class NetInfo(Info):
                 self.last_net_up = self.start_net_up
                 self.is_first = False
             current_time = time.time_ns()
-            current_info = self.d.adb_shell(command)
+            current_info = self.task.d.adb_shell(command)
             current_array = re.split("\s+", current_info)
             current_net_down = int(current_array[2])
             current_net_up = int(current_array[10])
@@ -113,7 +103,7 @@ class NetInfo(Info):
             self.last_net_up = current_net_up
             self.last_net_down = current_net_down
             self.count += 1
-            time.sleep(self.interval)
+            time.sleep(self.task.interval)
 
 
 class MemInfo(Info):
@@ -121,8 +111,8 @@ class MemInfo(Info):
     NATIVE_HEAP = "Native Heap(MB)"
     DALVIK_HEAP = "Dalvik Heap(MB)"
 
-    def __init__(self, task, d, device, applicationid, version_name, pid, interval, output):
-        super().__init__(task, d, device, applicationid, version_name, pid, interval, output)
+    def __init__(self):
+        super().__init__()
         self.count = 1
         self.is_running = True
 
@@ -134,28 +124,27 @@ class MemInfo(Info):
         self.is_running = False
 
     def get_mem_info(self):
-        dirs = self.output + "/mem_stats/"
-        file_name = "mem_" + self.device + "_" + self.applicationid + "_" + self.version_name + "_" + self.task_name
+        dirs = self.task.output + "/mem_stats/"
+        file_name = "mem_" + self.task.device + "_" + self.task.applicationid + "_" + self.task.version_name + "_" + self.task.name
         field_names = [self.TIME, self.NATIVE_HEAP, self.DALVIK_HEAP]
         writer = utils.get_csv_writer(dirs, file_name, field_names)
         while self.is_running:
-            native_info = self.d.adb_shell("dumpsys meminfo " + self.pid + " | grep 'Native Heap '")
+            native_info = self.task.d.adb_shell("dumpsys meminfo " + self.task.pid + " | grep 'Native Heap '")
             native_pss = format(int(re.findall(r"\d+", native_info)[0]) / 1000.0, ".2f")
-            dalvik_info = self.d.adb_shell("dumpsys meminfo " + self.pid + " | grep 'Dalvik Heap '")
+            dalvik_info = self.task.d.adb_shell("dumpsys meminfo " + self.task.pid + " | grep 'Dalvik Heap '")
             dalvik_pss = format(int(re.findall(r"\d+", dalvik_info)[0]) / 1000.0, ".2f")
             writer.writerow(
                 {self.TIME: time.strftime("%H:%M:%S"), self.NATIVE_HEAP: native_pss, self.DALVIK_HEAP: dalvik_pss})
             self.count += 1
-            time.sleep(self.interval)
+            time.sleep(self.task.interval)
 
 
 class FPSInfo(Info):
     TIME = "time"
     FPS = "FPS"
 
-    def __init__(self, task, d, device, applicationid, version_name, pid, interval, output):
-        super().__init__(task, d, device, applicationid, version_name, pid, interval, output)
-        self.d = d
+    def __init__(self):
+        super().__init__()
         self.is_running = True
         self.is_first = True
         self.last_time = 0.0
@@ -170,19 +159,19 @@ class FPSInfo(Info):
         self.is_running = False
 
     def get_fps_info(self):
-        command = "dumpsys gfxinfo " + self.pid + " | grep 'Total frames'"
-        dirs = self.output + "/fps_stats/"
-        file_name = "fps_" + self.device + "_" + self.applicationid + "_" + self.version_name + "_" + self.task_name
+        command = "dumpsys gfxinfo " + self.task.pid + " | grep 'Total frames'"
+        dirs = self.task.output + "/fps_stats/"
+        file_name = "fps_" + self.task.device + "_" + self.task.applicationid + "_" + self.task.version_name + "_" + self.task.name
         field_names = [self.TIME, self.FPS]
         writer = utils.get_csv_writer(dirs, file_name, field_names)
         while self.is_running:
             if self.is_first:
                 self.last_time = time.time_ns()
-                self.last_fps = int(re.findall("\d+", self.d.adb_shell(command))[0])
+                self.last_fps = int(re.findall("\d+", self.task.d.adb_shell(command))[0])
                 self.is_first = False
 
             current_time = time.time_ns()
-            current_fps = int(re.findall("\d+", self.d.adb_shell(command))[0])
+            current_fps = int(re.findall("\d+", self.task.d.adb_shell(command))[0])
             time_delta = (current_time - self.last_time) / 1000000000.0
             fps_delta = current_fps - self.last_fps
             fps = fps_delta / time_delta
@@ -190,7 +179,7 @@ class FPSInfo(Info):
             self.last_fps = current_fps
             writer.writerow({self.TIME: time.strftime("%H:%M:%S"), self.FPS: "{:.2f}".format(fps)})
             self.count += 1
-            time.sleep(self.interval)
+            time.sleep(self.task.interval)
 
 
 class CPUInfo(Info):
@@ -198,8 +187,8 @@ class CPUInfo(Info):
     CPU_RATE = "进程CPU占比(%)"
     JIFFIES = "时间片"
 
-    def __init__(self, task, d, device, applicationid, version_name, pid, interval, output):
-        super().__init__(task, d, device, applicationid, version_name, pid, interval, output)
+    def __init__(self):
+        super().__init__()
         self.count = 1
         self.is_running = True
 
@@ -212,7 +201,7 @@ class CPUInfo(Info):
 
     def get_cpu_action(self):
         cpu_path = "/proc/stat"
-        info = self.d.adb_shell("cat " + cpu_path)
+        info = self.task.d.adb_shell("cat " + cpu_path)
         return re.split("\s+", info.split("\n")[0])
 
     def get_process_cpu_usage(self):
@@ -221,8 +210,8 @@ class CPUInfo(Info):
         return cpu_usage
 
     def get_process_cpu_action(self):
-        cpu_path = "/proc/" + self.pid + "/stat"
-        info = self.d.adb_shell("cat " + cpu_path)
+        cpu_path = "/proc/" + self.task.pid + "/stat"
+        info = self.task.d.adb_shell("cat " + cpu_path)
         result = re.split("\s+", info)
         return [result[1], result[13], result[14]]
 
@@ -234,14 +223,14 @@ class CPUInfo(Info):
         self.is_running = False
 
     def get_cpu_info(self):
-        dirs = self.output + "/cpu_stats/"
-        file_name = "cpu_" + self.device + "_" + self.applicationid + "_" + self.version_name + "_" + self.task_name
+        dirs = self.task.output + "/cpu_stats/"
+        file_name = "cpu_" + self.task.device + "_" + self.task.applicationid + "_" + self.task.version_name + "_" + self.task.name
         field_names = [self.TIME, self.CPU_RATE, self.JIFFIES]
         writer = utils.get_csv_writer(dirs, file_name, field_names)
         while self.is_running:
             start_all_cpu = self.get_cpu_usage()
             start_p_cpu = self.get_process_cpu_usage()
-            time.sleep(self.interval)
+            time.sleep(self.task.interval)
             end_all_cpu = self.get_cpu_usage()
             end_p_cpu = self.get_process_cpu_usage()
             cpu_rate = 0.0
