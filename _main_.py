@@ -17,7 +17,7 @@ def main(task):
     applicationid = None
     interval = 1
     duration = 10
-    info_names = None
+    info_names = []
     output = "."
     account = None
     password = None
