@@ -50,7 +50,7 @@ python -m uiautomator2 init
 
 输出文件为 csv 文件，直接打开和用 Excel 打开的效果分别如下图  
 ![这里写图片描述](https://img-blog.csdn.net/20180424214415833?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NoYXJtaW5nV29uZw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)  
-![这里写图片描述](https://img-blog.csdn.net/20180424214422913?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NoYXJtaW5nV29uZw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+![这里写图片描述](https://img-blog.csdn.net/20180424214422913?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NoYXJtaW5nV29uZw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)  
 另外可以为测试的每个阶段添加一个节点说明 
 
 ```
