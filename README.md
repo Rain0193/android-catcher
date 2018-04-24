@@ -56,7 +56,7 @@ python -m uiautomator2 init
 ```
 task.period = "idle"
 ```
-生成类似如下的图
+生成类似如下的图  
 ![这里写图片描述](https://img-blog.csdn.net/20180424220059723?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NoYXJtaW5nV29uZw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
 ### 无自定义测试场景的使用方式
 适用于没有具体测试场景，在脚本运行之后一段时间内都处于采集状态的情况，持续时间可以通过配置参数指定，过程中使用者可以随意操作手机。通过命令行直接运行 `_main_.py` 脚本文件，并指定相关参数
@@ -87,9 +87,9 @@ python start_app.py -s 设备号-a 进程名 -f 0.1 -i cpu,mem -o .
 如果想采集自定义的信息，可以继承 `info.py#Info` 并重写 `Info#get_start_info` 和 `Info#get_end_info` 方法，可参考已实现的四种信息采集的写法，最后通过 `Task#add_info` 方法添加。
 
 自定义好测试场景之后，调用 `_main_#main` 方法，传入测试场景实例，测试场景的名称会作为输出文件命名的一部分，这里最好取能准确表达测试场景的名称，如某个 APP 录制视频测试场景的名称为 `RecordVideo`
-采集到的信息可通过 Excel 制成图表，以下是完整录制视频这个测试场景的 CPU 占比和内存的变化
+采集到的信息可通过 Excel 制成图表，以下是完整录制视频这个测试场景的 CPU 占比和内存的变化  
 ![这里写图片描述](https://img-blog.csdn.net/20180424214747362?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NoYXJtaW5nV29uZw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
-![这里写图片描述](https://img-blog.csdn.net/20180424214854715?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NoYXJtaW5nV29uZw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+![这里写图片描述](https://img-blog.csdn.net/20180424214854715?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NoYXJtaW5nV29uZw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)  
 通过图表可以直观分析应用不同版本和不同场景下的性能状况
 
 # 写在最后
