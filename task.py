@@ -4,6 +4,7 @@ import time
 class Task(object):
     def __init__(self, name):
         self.name = name
+        self.period = None
         self.d = None
         self.device = None
         self.applicationid = None

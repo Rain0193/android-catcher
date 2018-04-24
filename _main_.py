@@ -10,6 +10,17 @@ from info_task import InfoTask
 from task import RandomTask
 
 
+# 命令行配置参数
+# -s device 设备号
+# -a applicationid 包名
+# -f frequence 频率，即采样间隔，单位为秒
+# -d duration 无自定义测试场景时，为RandomTask指定运行时间
+# -i info 需要采集的信息
+# -o output 输出目录，默认为"."
+# -u user 账号
+# -p password 密码
+# -l url 需要安装app的url地址
+
 def main(task):
     device = None
     applicationid = None
@@ -17,7 +28,7 @@ def main(task):
     duration = 10
     info_names = []
     output = "."
-    opts, args = getopt.getopt(sys.argv[1:], "s:a:f:d:i:o:t:u:p:")
+    opts, args = getopt.getopt(sys.argv[1:], "s:a:f:d:i:o:t:u:p:l:")
 
     for opt, value in opts:
         if opt == "-s":
@@ -35,6 +46,7 @@ def main(task):
                 output = value
 
     d = u2.connect(device)
+    d.app_start(applicationid)
     pid = utils.get_pid_by_applicationid(d, applicationid)
     version_name = utils.get_version_name_by_applicationid(d, applicationid)
 
